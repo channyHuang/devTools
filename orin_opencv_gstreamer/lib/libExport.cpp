@@ -5,23 +5,16 @@
 
 extern "C"
 
-void log(const char* pString)
-{
-    std::ofstream off("liblog.txt", std::ios::app);
-    off << pString << std::endl;
-    off.close();
-}
-
 void setParams(const char* pUri, int nWidth, int nHeight, const char* pDecode) {
     HGManager::getInstance()->setParams(pUri, nWidth, nHeight, pDecode);
 }
 
 bool start() {
-    HGManager::getInstance()->start();
+    HGManager::getInstance()->startPull();
 }
 
 bool stop() {
-    HGManager::getInstance()->stop();
+    HGManager::getInstance()->stopPull();
 }
 
 void startPullRtsp(char* pUri, int nWidth, int nHeight)
@@ -32,4 +25,8 @@ void startPullRtsp(char* pUri, int nWidth, int nHeight)
 void setCallback(CBFun_Callback pFunc, void *pUser)
 {
     HGManager::getInstance()->setCallback(pFunc, pUser);
+}
+
+bool getFrame(stCBResult &stResult) {
+    HGManager::getInstance()->getFrame(stResult);
 }

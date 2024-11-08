@@ -1,10 +1,15 @@
 #pragma once
 
 #include <string>
+#include <mutex>
+#include <queue>
 
 #include "libExport.h"
+#include "stopthread.h"
 
-class HGManager {
+#include <opencv2/opencv.hpp>
+
+class HGManager : public StopThread {
 public:
     static HGManager* getInstance() {
         if (m_pInstance == nullptr) {
@@ -16,10 +21,15 @@ public:
     virtual ~HGManager();
 
     void setParams(const char* pUri, int nWidth, int nHeight, const char* pDecode = "H264");
-    bool start();
-    bool stop();
-    bool startPullRtsp(char* pUri, int nWidth, int nHeight, const char* pDecode = "H264");
+    bool startPull();
+    bool stopPull();
+    bool startPullRtsp(char* pUri, int nWidth, int nHeight, const char* pDecode = nullptr);
     void setCallback(CBFun_Callback pFunc, void *pUser);
+
+    bool getFrame(stCBResult &stResult);
+
+protected:
+    virtual void threadLoop(std::future<void> exitListener);
 
 private:
     HGManager();
@@ -29,4 +39,9 @@ private:
     void* m_pUser = nullptr;
     bool m_bRunning = false, m_bInit = false;
     std::string m_sUri;
+    bool m_bEnableGstreamer = true;
+    int m_nWidth = 1920, m_nHeight = 1080;
+
+    std::mutex mutex_buffer;
+    std::queue<stCBResult> m_quBuffer;
 };
