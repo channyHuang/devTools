@@ -43,7 +43,7 @@ typedef struct stCBResult {
 D_EXTERN_C D_SHARE_EXPORT void setParams(const char* pUri, int nWidth, int nHeight, const char* pDecode = "H264");
 D_EXTERN_C D_SHARE_EXPORT bool start();
 D_EXTERN_C D_SHARE_EXPORT bool stop();
-D_EXTERN_C D_SHARE_EXPORT bool getFrame(stCBResult &stResult);
+D_EXTERN_C D_SHARE_EXPORT stCBResult* getFrame();
 
 // start pull rtsp
 D_EXTERN_C D_SHARE_EXPORT void startPullRtsp(char* pChar, int nWidth, int nHeight);

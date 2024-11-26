@@ -27,6 +27,6 @@ void setCallback(CBFun_Callback pFunc, void *pUser)
     HGManager::getInstance()->setCallback(pFunc, pUser);
 }
 
-bool getFrame(stCBResult &stResult) {
-    HGManager::getInstance()->getFrame(stResult);
+stCBResult* getFrame() {
+    return HGManager::getInstance()->getFrame();
 }

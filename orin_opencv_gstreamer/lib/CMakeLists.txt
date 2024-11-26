@@ -21,8 +21,8 @@ set(PROJECT_SOURCES
     ${CPPS}
 )
 
-add_library(${PROJECT_NAME} 
-#add_executable(${PROJECT_NAME} 
+# add_library(${PROJECT_NAME} SHARED
+add_executable(${PROJECT_NAME} 
                ${PROJECT_SOURCES}
 )
 

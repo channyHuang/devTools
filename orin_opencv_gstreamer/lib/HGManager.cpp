@@ -108,18 +108,18 @@ void HGManager::setCallback(CBFun_Callback pFunc, void *pUser) {
     m_pUser = pUser;
 }
 
-bool HGManager::getFrame(stCBResult &stResult) {
+stCBResult* HGManager::getFrame() {
     std::lock_guard<std::mutex> locker(mutex_buffer);
-    if (m_quBuffer.empty()) return false;
-    stResult = m_quBuffer.front();
+    if (m_quBuffer.empty()) return nullptr;
+    stCBResult *stResult = m_quBuffer.front();
     m_quBuffer.pop();
-    return true;
+    return stResult;
 }
 
 void HGManager::threadLoop(std::future<void> exitListener) {
     cv::VideoCapture cap(m_sUri, m_bEnableGstreamer ? cv::CAP_GSTREAMER : cv::CAP_ANY);
     if (!cap.isOpened()) {
-        std::cerr << "VideoCapture not opened" << std::endl;
+        std::cerr << "VideoCapture not opened:\nuri = " << m_sUri << std::endl;
         return;
     }
     std::cout << __LINE__ << " open success " << m_sUri << std::endl;
@@ -131,15 +131,17 @@ void HGManager::threadLoop(std::future<void> exitListener) {
             std::cerr << __LINE__ << "get frame failed " << std::endl;
             continue;
         }
-        stCBResult stResult;
-        stResult.pFrame = frame.data;
-        stResult.nHeight = frame.rows;
-        stResult.nWidth= frame.cols;
-        std::lock_guard locker(mutex_buffer);
-        if (!m_quBuffer.empty()) {
-            m_quBuffer.pop();
+        stCBResult *stResult = new stCBResult();
+        stResult->pFrame = frame.data;
+        stResult->nHeight = frame.rows;
+        stResult->nWidth= frame.cols;
+        {
+            std::lock_guard locker(mutex_buffer);
+            if (!m_quBuffer.empty()) {
+                m_quBuffer.pop();
+            }
+            m_quBuffer.push(stResult);
         }
-        m_quBuffer.push(stResult);
     } while (exitListener.wait_for(std::chrono::milliseconds(1)) == std::future_status::timeout);
     cap.release();
     m_bRunning = false;

@@ -42,21 +42,21 @@ int main()
     // openDirect(pUri, decode);
     // openGstreamer(pUri, decode);
 
-    // setParams(pUri, 2880, 1616, decode);
-    setParams(pUri, 960, 540, decode);
+    setParams(pUri, 2880, 1616, decode);
+    // setParams(pUri, 960, 540, decode);
     start();
 
     int nFrameNum = 0;
-    stCBResult stResult;
+    stCBResult* stResult = nullptr;
     while (true) {
-        bool res = getFrame(stResult);
-        if (!res) {
-            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        stResult = getFrame();
+        if (stResult == nullptr) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
             continue;
         }
         nFrameNum++;
         if (nFrameNum >= 500) break;
-        cv::Mat frame(stResult.nHeight, stResult.nWidth, CV_8UC3, stResult.pFrame);
+        cv::Mat frame(stResult->nHeight, stResult->nWidth, CV_8UC3, stResult->pFrame);
         if (frame.empty()) {
             std::cerr << "err " << std::endl;
         }

@@ -26,7 +26,7 @@ public:
     bool startPullRtsp(char* pUri, int nWidth, int nHeight, const char* pDecode = nullptr);
     void setCallback(CBFun_Callback pFunc, void *pUser);
 
-    bool getFrame(stCBResult &stResult);
+    stCBResult* getFrame();
 
 protected:
     virtual void threadLoop(std::future<void> exitListener);
@@ -43,5 +43,5 @@ private:
     int m_nWidth = 1920, m_nHeight = 1080;
 
     std::mutex mutex_buffer;
-    std::queue<stCBResult> m_quBuffer;
+    std::queue<stCBResult*> m_quBuffer;
 };
