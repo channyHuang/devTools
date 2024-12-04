@@ -8,7 +8,7 @@ else()
 set(PROJECT_NAME icer_usage)
 endif()
 
-project(demo LANGUAGES C CXX)
+project(${PROJECT_NAME} LANGUAGES C CXX)
 
 # Check C++17 support
 set(CMAKE_CXX_STANDARD 17)
@@ -33,44 +33,31 @@ include_directories(${PROJECT_NAME}
     ${OpenCV_INCLUDE_DIRS}
 )
 
-add_subdirectory(./lib_icer)
+if (Lib)
+    add_subdirectory(./lib_icer)
+    file(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp)
+    file(GLOB FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.c)
 
-file(GLOB HEADERS ${CMAKE_CURRENT_SOURCE_DIR}/*.h ${CMAKE_CURRENT_SOURCE_DIR}/*.hpp)
-file(GLOB FILES ${CMAKE_CURRENT_SOURCE_DIR}/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/*.c)
+    add_library(${PROJECT_NAME} STATIC # SHARED
+        ${HEADERS}
+        ${FILES}
+    )
 
-set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build/lib_icer)
-link_directories(${PROJECT_NAME}
-${LIB_DIR}
-)
-
-if(Lib)
-add_library(${PROJECT_NAME} STATIC # SHARED
-    ${HEADERS}
-    ${FILES}
-)
-
-target_link_libraries(${PROJECT_NAME}
-    icer
-)
-
-add_executable(icer_usage
-    main.cpp
-)
-
-target_link_libraries(icer_usage
-    ${OpenCV_LIBS}
-    icer 
-    demo
-)
-
+    target_link_libraries(${PROJECT_NAME}
+        icer
+    )
 else()
+    set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build)
+    link_directories(${PROJECT_NAME}
+        ${LIB_DIR}
+    )
 
-add_executable(${PROJECT_NAME}
-    ${HEADERS}
-    ${FILES}
-)
+    add_executable(${PROJECT_NAME}
+        main.cpp
+    )
 
-target_link_libraries(${PROJECT_NAME} 
-    icer
-)
+    target_link_libraries(${PROJECT_NAME}
+        ${OpenCV_LIBS}
+        icer_lib
+    )
 endif()
