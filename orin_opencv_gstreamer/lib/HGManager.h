@@ -4,7 +4,7 @@
 #include <mutex>
 #include <queue>
 
-#include "libExport.h"
+#include "export_stream.h"
 #include "stopthread.h"
 
 #include <opencv2/opencv.hpp>

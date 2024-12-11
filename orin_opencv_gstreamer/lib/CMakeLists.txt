@@ -1,8 +1,23 @@
 cmake_minimum_required(VERSION 3.15)
 
-project(HGStreamLib)
+set(Lib True)
+
+if(Lib)
+    set(PROJECT_NAME HGStreamLib)
+else()
+    set(PROJECT_NAME HGStream)
+endif()
+
+project(${PROJECT_NAME} LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_FLAGS "-Wall -Wextra -pthread")
+set(CMAKE_C_FLAGS_DEBUG "-g")
+set(CMAKE_C_FLAGS_RELEASE "-O2")
+
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
 
 find_package(OpenCV REQUIRED)
 if(OpenCV_FOUND)
@@ -10,26 +25,39 @@ if(OpenCV_FOUND)
 endif()
 
 include_directories(${PROJECT_NAME} 
-include
+${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-file(GLOB HEADERS ./*.h)
-file(GLOB CPPS ./*.cpp)
+file(GLOB HEADERS ./stopthread.h export_stream.h HGManager.h)
+file(GLOB CPPS ./HGManager.cpp export_stream.cpp)
 
 set(PROJECT_SOURCES
     ${HEADERS}
     ${CPPS}
 )
 
-# add_library(${PROJECT_NAME} SHARED
-add_executable(${PROJECT_NAME} 
+if (Lib)
+    add_library(${PROJECT_NAME} STATIC #SHARED
                ${PROJECT_SOURCES}
-)
+    )
 
-link_directories(${PROJECT_NAME}
-)
+    target_link_libraries(${PROJECT_NAME} 
+        ${OpenCV_LIBS} 
+        pthread
+    )
+else()
+    set(LIB_DIR ${CMAKE_CURRENT_SOURCE_DIR}/build)
+    link_directories(${PROJECT_NAME}
+        ${LIB_DIR}
+    )
+    
+    add_executable(${PROJECT_NAME} 
+        main.cpp
+    )
 
-target_link_libraries(${PROJECT_NAME} 
-${OpenCV_LIBS} 
-pthread
-)
+    target_link_libraries(${PROJECT_NAME} 
+        ${OpenCV_LIBS} 
+        HGStreamLib
+        pthread
+    )
+endif()

@@ -33,6 +33,7 @@ bool openGstreamer(const char* pUri, char* decode) {
     return true;
 }
 
+
 int main()
 {
     char *pUri = "/home/channy/Documents/projects/devTools/EncodeDecode/data/HG_EncodeType.H265.mp4";
@@ -41,7 +42,10 @@ int main()
 
     // setParams(pUri, 2880, 1616, decode);
     setParams(pUri, 1920, 1080, nullptr);
-    startHGStream();
+    bool res = startHGStream();
+    if (res == false) {
+        std::cout << "failed " << std::endl;
+    }
 
     int nFrameNum = 0;
     stCBResult* stResult = nullptr;
@@ -49,6 +53,7 @@ int main()
         stResult = getFrame();
         if (stResult == nullptr) {
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
             continue;
         }
         nFrameNum++;
@@ -68,7 +73,7 @@ int main()
         }
     }
 
-    stop();
+    stopHGStream();
 
     return 0;
 }

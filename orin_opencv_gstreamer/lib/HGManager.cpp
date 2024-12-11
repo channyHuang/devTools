@@ -5,12 +5,18 @@
 #include <chrono>
 #include <thread>
 
+#include <execinfo.h>
+
 HGManager* HGManager::m_pInstance = nullptr;
 
 HGManager::HGManager() {
+    std::cout << "HGManager create " << std::endl;
     // std::cout << cv::getBuildInformation() << std::endl;
 }
-HGManager::~HGManager() {}
+
+HGManager::~HGManager() {
+    std::cout << "HGManager destroy " << std::endl;
+}
 
 bool getCommandResult(const char* pCommand, std::string &sResult) {
     FILE *pFile = nullptr;
@@ -40,6 +46,7 @@ bool hasGstreamerPlugin(const char* pPluginName = "omxh264dec") {
 }
 
 void HGManager::setParams(const char* pUri, int nWidth, int nHeight, const char* pDecode) {
+    std::cout << "setParams " << pUri << " " << nWidth << " " << nHeight << std::endl;
     m_nHeight = nHeight;
     m_nWidth = nWidth;
     m_bInit = true;
@@ -73,11 +80,11 @@ void HGManager::setParams(const char* pUri, int nWidth, int nHeight, const char*
     }
     m_bEnableGstreamer = true;
     m_sUri = oss.str();
-    m_bInit = true;
 }
 
 bool HGManager::startPull() {
-    if (!m_bInit || m_bRunning) {
+    std::cout << "startPull" << std::endl;
+    if ((!m_bInit) || m_bRunning) {
         std::cerr << "Not init yeah or is running" << std::endl;
         return false;
     }
@@ -86,6 +93,8 @@ bool HGManager::startPull() {
 }
 
 bool HGManager::stopPull() {
+    std::cout << "stoppull" << std::endl;
+
     if (!m_bInit || !m_bRunning) {
         std::cerr << "Not init yeah or not running" << std::endl;
         return false;
@@ -94,18 +103,20 @@ bool HGManager::stopPull() {
     return true;
 }
 
+void HGManager::setCallback(CBFun_Callback pFunc, void *pUser) {
+    std::cout << "setCallback" << std::endl;
+    m_pFunc = pFunc;
+    m_pUser = pUser;
+}
+
 bool HGManager::startPullRtsp(char* pUri, int nWidth, int nHeight, const char* pDecode) {
+    std::cout << "startPullRtsp" << std::endl;
     if (m_bRunning) {
         return false;
     }
     setParams(pUri, nWidth, nHeight, pDecode);
     run();
     return true;
-}
-
-void HGManager::setCallback(CBFun_Callback pFunc, void *pUser) {
-    m_pFunc = pFunc;
-    m_pUser = pUser;
 }
 
 stCBResult* HGManager::getFrame() {
@@ -118,6 +129,7 @@ stCBResult* HGManager::getFrame() {
 
 void HGManager::threadLoop(std::future<void> exitListener) {
     cv::VideoCapture cap(m_sUri, m_bEnableGstreamer ? cv::CAP_GSTREAMER : cv::CAP_ANY);
+    std::cout << "threadLoop " << std::endl;
     if (!cap.isOpened()) {
         std::cerr << "VideoCapture not opened:\nuri = " << m_sUri << std::endl;
         return;

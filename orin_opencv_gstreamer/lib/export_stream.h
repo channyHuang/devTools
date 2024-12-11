@@ -1,6 +1,6 @@
 
-#ifndef DLLEXPORT_H
-#define DLLEXPORT_H
+#ifndef EXPORT_STREAM_H
+#define EXPORT_STREAM_H
 
 #include <string.h>
 #include <string>
@@ -40,16 +40,21 @@ typedef struct stCBResult {
     int nHeight = 0;
 };
 
+// definition of callback function
+typedef void (__stdcall *CBFun_Callback)(stCBResult* stResult, void* pUser);
+
 D_EXTERN_C D_SHARE_EXPORT void setParams(const char* pUri, int nWidth, int nHeight, const char* pDecode = "H264");
-D_EXTERN_C D_SHARE_EXPORT bool start();
-D_EXTERN_C D_SHARE_EXPORT bool stop();
+
+D_EXTERN_C D_SHARE_EXPORT bool startHGStream();
+
+D_EXTERN_C D_SHARE_EXPORT bool stopHGStream();
+
 D_EXTERN_C D_SHARE_EXPORT stCBResult* getFrame();
 
 // start pull rtsp
 D_EXTERN_C D_SHARE_EXPORT void startPullRtsp(char* pChar, int nWidth, int nHeight);
 
-// definition of callback function
-typedef void (__stdcall *CBFun_Callback)(stCBResult* stResult, void* pUser);
 D_EXTERN_C D_SHARE_EXPORT void setCallback(CBFun_Callback pFunc, void *pUser);
 
-#endif // DLLEXPORT_H
+
+#endif // EXPORT_STREAM_H
