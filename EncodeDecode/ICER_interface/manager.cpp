@@ -160,12 +160,12 @@ bool Manager::decode(const char *pFileName, const char* pOutName, int nWidth, in
 }
 
 char* Manager::encodeData(const char *pData, int& nSize, int nWidth, int nHeight, int nChannel) {
-    nSize = 0;
     uint8_t* pInData = (uint8_t*)pData;
     if (pInData == nullptr) {
         return nullptr;
     }
-    printf("encodeData [w,h] = [%d, %d] size = %d\n", nWidth, nHeight, nSize);
+    int nOriginSize = nSize;
+    // printf("encodeData [w,h] = [%d, %d] size = %d\n", nWidth, nHeight, nSize);
     icer_init();
     // converting to yuv
     uint16_t *pCompress[3];
@@ -182,12 +182,12 @@ char* Manager::encodeData(const char *pData, int& nSize, int nWidth, int nHeight
     clock_t stBeginTime = clock();
     icer_compress_image_yuv_uint16(pCompress[0], pCompress[1], pCompress[2], nWidth, nHeight, m_nStages, m_eFilter, m_nSegments, &output);
     clock_t stEndTime = clock();
-    printf("compress time taken: %lf\n", (float)(stEndTime - stBeginTime)/CLOCKS_PER_SEC);
+    // printf("compress time taken: %lf\n", (float)(stEndTime - stBeginTime)/CLOCKS_PER_SEC);
 
     nSize = output.size_used;
     char* pResult = (char*)malloc(output.size_used);
     memcpy(pResult, output.rearrange_start, output.size_used);
-    printf("encodeData result size = %d\n", nSize);
+    // printf("size (origin / encode )= (%d/%d) \n", nOriginSize, nSize);
     // release
     free(pStream);
     for (int c = 0; c < m_nChannel; ++c) {
@@ -202,7 +202,7 @@ char* Manager::decodeData(const char *pData, int nSize, int nWidth, int nHeight,
 
     uint8_t *pBuffer = (uint8_t *)pData;
     int nReadLength = nSize;
-    printf("decodeData [w,h] = [%d, %d] size = %d\n", nWidth, nHeight, nSize);
+    // printf("decodeData [w,h] = [%d, %d] size = %d\n", nWidth, nHeight, nSize);
 
     // // decompress
     uint16_t *pDecompress[3];
@@ -214,7 +214,7 @@ char* Manager::decodeData(const char *pData, int nSize, int nWidth, int nHeight,
     int res = icer_decompress_image_yuv_uint16(pDecompress[0], pDecompress[1], pDecompress[2], &m_nWidth, &m_nHeight, nWidth * nHeight, pBuffer, nReadLength, m_nStages, m_eFilter, m_nSegments);
     if (res != ICER_RESULT_OK) return nullptr;
     clock_t stEndTime = clock();
-    printf("decompress time taken: %lf\n", (float)(stEndTime - stBeginTime)/CLOCKS_PER_SEC);
+    // printf("decompress time taken: %lf\n", (float)(stEndTime - stBeginTime)/CLOCKS_PER_SEC);
 
     yuv_to_rgb888_packed(pDecompress[0], pDecompress[1], pDecompress[2], pDisplay, m_nWidth, m_nHeight, m_nWidth);
 

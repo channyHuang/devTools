@@ -1,6 +1,6 @@
 
-#ifndef DLLEXPORT_H
-#define DLLEXPORT_H
+#ifndef EXPORT_ICER_H
+#define EXPORT_ICER_H
 
 #include <string.h>
 #include <string>
@@ -38,4 +38,4 @@ D_EXTERN_C D_SHARE_EXPORT bool decode(const char *pFileName, const char* pOutNam
 D_EXTERN_C D_SHARE_EXPORT char* encodeData(const char *pData, int &nSize, int nWidth, int nHeight, int nChannel);
 D_EXTERN_C D_SHARE_EXPORT char* decodeData(const char *pData, int nSize, int nWidth, int nHeight, int nChannel);
 
-#endif // DLLEXPORT_H
+#endif // EXPORT_ICER_H

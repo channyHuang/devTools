@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.10)
 
-set(Lib False)
+set(Lib True)
 
 if(Lib)
-set(PROJECT_NAME icer_lib)
+    set(PROJECT_NAME icer_lib)
 else()
-set(PROJECT_NAME icer_usage)
+    set(PROJECT_NAME icer_usage)
 endif()
 
 project(${PROJECT_NAME} LANGUAGES C CXX)
@@ -22,7 +22,7 @@ endif()
 
 OPTION(ENABLE_OPENCV "Usage Opencv" ON)
 if (ENABLE_OPENCV)
-# add_definitions(-DUSE_OPENCV)
+add_definitions(-DUSE_OPENCV)
 
 find_package(OpenCV REQUIRED)
 endif()
