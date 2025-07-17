@@ -12,8 +12,8 @@ warnings.filterwarnings('ignore')
 
 def parseParam():
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', nargs='?', default='./out/main.tar', help='Path for model checkpoint file [default: ./out/main.tar]')
-    parser.add_argument('--encode', nargs='?', default=False, help='encode or decode: True or False')
+    parser.add_argument('--model', nargs='?', default='./out/train_state_new0.91455.tar', help='Path for model checkpoint file [default: ./out/main.tar]')
+    parser.add_argument('--encode', nargs='?', default=True, help='encode or decode: True or False')
     parser.add_argument('--image_folder', nargs='?', default='./dataset/', help='Directory which holds the images to be compressed [default: ./dataset/]')
     parser.add_argument('--compress_folder', nargs='?', default='./out/compressed', help='Directory which holds the compressed files')
     parser.add_argument('--decompress_folder', nargs='?', default='./out/decompressed/', help='Directory which will hold the decompressed images')

@@ -21,8 +21,9 @@ void allInOne() {
         return;
     }
 
+    int nPadding = 256;
     cv::VideoWriter writer;
-    writer.open("./DJI_20241120152234_0001_W.MP4", cv::VideoWriter::fourcc('M', 'P', '4', 'V'), 30, cv::Size(nReWidth * 2 + 128, nReHeight));
+    writer.open("./feature.avi", cv::VideoWriter::fourcc('H', '2', '6', '4'), 30, cv::Size(nPadding, nPadding));
     while (cap.isOpened()) {
         cv::Mat frame;
         cap.read(frame);
@@ -51,17 +52,16 @@ void allInOne() {
         char* pEncoded = encodeData((char*)cvImg.data, nSize, nWidth, nHeight, 3);
         
         char *pData = decodeData(pEncoded, nSize, nWidth, nHeight, 3);
-            
-        cv::Mat feature = cv::Mat::zeros(nReHeight, 128, CV_8UC3);
-
-        for (int i = 0; i < 128; ++i) {
-            for (int j = 0; j < 128; ++j) {
-                feature.at<cv::Vec3b>(i, j)[0] = pData[(i * 128 + j) % nSize];
-                feature.at<cv::Vec3b>(i, j)[1] = pData[(i * 128 + j) % nSize];
-                feature.at<cv::Vec3b>(i, j)[2] = pData[(i * 128 + j) % nSize];
+        
+        cv::Mat feature = cv::Mat::zeros(256, 256, CV_8UC3);
+        for (int i = 0; i < nPadding; ++i) {
+            for (int j = 0; j < nPadding; ++j) {
+                feature.at<cv::Vec3b>(i, j)[0] = pData[(i * nPadding + j) % nSize];
+                feature.at<cv::Vec3b>(i, j)[1] = pData[(i * nPadding + j) % nSize];
+                feature.at<cv::Vec3b>(i, j)[2] = pData[(i * nPadding + j) % nSize];
             }
         }
-        feature.copyTo(allFrame(cv::Rect(nReWidth, 0, 128, nReHeight)), feature);
+        // feature.copyTo(allFrame(cv::Rect(nReWidth, 0, 128, nReHeight)), feature);
         
         cv::Mat bufferMat(nHeight, nWidth, CV_8UC3, pData);
         cv::cvtColor(bufferMat, bufferMat, cv::COLOR_RGB2BGR);
@@ -70,16 +70,17 @@ void allInOne() {
         cv::resize(showBuffer, showBuffer, cv::Size(nReWidth, nReHeight));
         showBuffer.copyTo(allFrame(cv::Rect(nReWidth + 128, 0, nReWidth, nReHeight)), showBuffer);
 
-        writer.write(allFrame);
+        // writer.write(allFrame);
+        writer.write(feature);
 
         // if (nFrameNum % 100 == 0) {
         //     cv::imwrite("./" + std::to_string(nFrameNum) + ".jpg", allFrame);
         // }
-        char name[10];
-        sprintf(name, "%03d.jpg\n", nFrameNum);
-        cv::imwrite("./tmp/" + std::string(name), allFrame);
+        // char name[10];
+        // sprintf(name, "%03d.jpg\n", nFrameNum);
+        // cv::imwrite("./tmp/" + std::string(name), allFrame);
 
-        if (nFrameNum >= 410) break;
+        // if (nFrameNum >= 410) break;
     }
     cap.release();
     writer.release();

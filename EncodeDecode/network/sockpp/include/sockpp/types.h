@@ -48,12 +48,13 @@
 #define __sockpp_types_h
 
 #include <chrono>
+#include <cstdint>
 #include <string>
 
 namespace sockpp {
 
 /** Port used for example apps and unit tests */
-constexpr in_port_t TEST_PORT = 12345;
+// constexpr in_port_t TEST_PORT = 12345;
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -62,6 +63,9 @@ using std::string;
 
 /** A sockpp::duration is a std::chrono::duration */
 using std::chrono::duration;
+
+/** A binary blob as a basic string/collection of uint8_t */
+using binary = std::basic_string<uint8_t>;
 
 // Time units are std::chrono time unite.
 using std::chrono::microseconds;

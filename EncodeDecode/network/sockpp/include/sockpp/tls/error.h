@@ -1,19 +1,16 @@
 /**
- * @file unix_dgram_socket.h
+ * @file tls_error.h
  *
- * Class (typedef) for Unix-domain UDP socket.
+ * Master include for sockpp TLS error objects.
  *
- * @author Frank Pagliughi
- * @author SoRo Systems, Inc.
- * @author www.sorosys.com
  *
- * @date August 2019
+ * @date January 2024
  */
 
 // --------------------------------------------------------------------------
 // This file is part of the "sockpp" C++ socket library.
 //
-// Copyright (c) 2019 Frank Pagliughi
+// Copyright (c) 2024 Frank Pagliughi
 // All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
@@ -44,27 +41,17 @@
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 // --------------------------------------------------------------------------
 
-#ifndef __sockpp_unix_dgram_socket_h
-#define __sockpp_unix_dgram_socket_h
+#ifndef __sockpp_tls_error_h
+#define __sockpp_tls_error_h
 
-#if defined(_WIN32)
-    #error "UNIX datagram sockets not supported on Windows"
+#include "sockpp/version.h"
+
+#if defined(SOCKPP_OPENSSL)
+    #include "sockpp/tls/openssl_error.h"
+#elif defined(SOCKPP_MBEDTLS)
+    #include "sockpp/tls/mbedtls_error.h"
+#else
+    #error "No TLS library chosen for sockpp"
 #endif
 
-#include "sockpp/datagram_socket.h"
-#include "sockpp/unix_address.h"
-
-namespace sockpp {
-
-/////////////////////////////////////////////////////////////////////////////
-
-/** Unix-domain datagram socket */
-using unix_datagram_socket = datagram_socket_tmpl<unix_address>;
-
-/** Unix-domain datagram socket (same as `unix_datagram_socket`) */
-using unix_dgram_socket = unix_datagram_socket;
-
-/////////////////////////////////////////////////////////////////////////////
-}  // namespace sockpp
-
-#endif  // __sockpp_unix_dgram_socket_h
+#endif  // __sockpp_tls_error_h

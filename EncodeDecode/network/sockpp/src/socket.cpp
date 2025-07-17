@@ -42,6 +42,12 @@
 #include <cstring>
 
 #include "sockpp/error.h"
+#include "sockpp/version.h"
+
+#if defined(SOCKPP_OPENSSL)
+    #include <openssl/err.h>
+    #include <openssl/ssl.h>
+#endif
 
 using namespace std::chrono;
 
@@ -75,6 +81,11 @@ socket_initializer::socket_initializer() {
     // Don't signal on socket write errors.
     ::signal(SIGPIPE, SIG_IGN);
 #endif
+
+#if defined(SOCKPP_OPENSSL)
+    SSL_library_init();
+    SSL_load_error_strings();
+#endif
 }
 
 socket_initializer::~socket_initializer() {
@@ -102,26 +113,29 @@ result<> socket::close(socket_t h) noexcept {
 // --------------------------------------------------------------------------
 
 result<socket> socket::create(int domain, int type, int protocol /*=0*/) noexcept {
-    socket sock(::socket(domain, type, protocol));
-    if (!sock)
-        return result<socket>::from_last_error();
-    return sock;
+    if (auto res = check_socket(::socket(domain, type, protocol)); !res)
+        return res.error();
+    else
+        return socket(res.value());
 }
 
 // --------------------------------------------------------------------------
-// TODO: result<socket>?
 
-socket socket::clone() const {
+result<socket> socket::clone() const {
     socket_t h = INVALID_SOCKET;
 #if defined(_WIN32)
     WSAPROTOCOL_INFOW protInfo;
     if (::WSADuplicateSocketW(handle_, ::GetCurrentProcessId(), &protInfo) == 0)
         h = check_socket(
-            ::WSASocketW(AF_INET, SOCK_STREAM, 0, &protInfo, 0, WSA_FLAG_OVERLAPPED)
-        ).value();
+                ::WSASocketW(AF_INET, SOCK_STREAM, 0, &protInfo, 0, WSA_FLAG_OVERLAPPED)
+        )
+                .value();
 #else
     h = ::dup(handle_);
 #endif
+
+    if (auto res = check_socket(h); !res)
+        return res.error();
 
     return socket(h);
 }
@@ -247,15 +261,16 @@ sock_address_any socket::peer_address() const {
 
 // --------------------------------------------------------------------------
 
-result<> socket::get_option(int level, int optname, void* optval, socklen_t* optlen)
-    const noexcept {
+result<> socket::get_option(
+    int level, int optname, void* optval, socklen_t* optlen
+) const noexcept {
     result<int> res;
 #if defined(_WIN32)
     if (optval && optlen) {
         int len = static_cast<int>(*optlen);
-        res =
-            check_res(::getsockopt(handle_, level, optname, static_cast<char*>(optval), &len)
-            );
+        res = check_res(
+            ::getsockopt(handle_, level, optname, static_cast<char*>(optval), &len)
+        );
         if (res) {
             *optlen = static_cast<socklen_t>(len);
         }
@@ -272,9 +287,12 @@ result<> socket::set_option(
     int level, int optname, const void* optval, socklen_t optlen
 ) noexcept {
 #if defined(_WIN32)
-    return check_res_none(::setsockopt(
-        handle_, level, optname, static_cast<const char*>(optval), static_cast<int>(optlen)
-    ));
+    return check_res_none(
+        ::setsockopt(
+            handle_, level, optname, static_cast<const char*>(optval),
+            static_cast<int>(optlen)
+        )
+    );
 #else
     return check_res_none(::setsockopt(handle_, level, optname, optval, optlen));
 #endif

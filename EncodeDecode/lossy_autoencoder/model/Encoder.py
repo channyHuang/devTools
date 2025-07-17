@@ -24,7 +24,7 @@ class Encoder():
         x = self.model.enc(x)
         x = self.model.binarizer(x)
         
-        y = x.cpu().detach().numpy()
+        y = x.cpu().detach().numpy() # (1, 128, 132, 176)
         y[y<0] = 0
         y[y>0] = 1
         return y,dw,dh
