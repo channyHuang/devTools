@@ -183,7 +183,19 @@ def selectKeyframe(sVideoName, sOutPath, nGap = 15):
 				nMaxSharpness = -1
 				nMaxIdx = -1
 
+def selectKeyframeByTime(sVideoName, sOutPath, nGap = 15):
+    cap = cv2.VideoCapture(sVideoName)
+    nframe = 0
+    while (cap.isOpened()):
+        res, frame = cap.read()
+        if res is None or res == False:
+            break
+        nframe += 1
+        if nframe % nGap == 0:
+            cv2.imwrite(os.path.join(sOutPath, f'{nframe:04d}.jpg'), frame)
 
+def color_transfer(img_reference, img_target, bClip = True, bPreservePaper = True):
+    img_reference = cv2.cvtColor(img_reference, cv2.COLOR_BGR2LAB).astype('float32')
 
 def parse_args():
 	parser = argparse.ArgumentParser(description="...")
